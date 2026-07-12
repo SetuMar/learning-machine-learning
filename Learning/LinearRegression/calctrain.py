@@ -49,7 +49,7 @@ def train(train_features, train_labels):
 
     err = calculate_MSE(feature_weights, features, labels)
 
-    while err > 1e-2:
+    while err > 1e-3:
         # generate loss function
         loss_func = generate_loss_function(weight_symbols, features, labels)
 
