@@ -1,40 +1,19 @@
 import pandas as pd
-from calcmathlibs import generate_weight_symbols, generate_loss_function, calculate_gradient, calculate_MSE
-
-def normalize_col(x, mx, mn):    
-    return (x - mn) / (mx - mn)
+from calcmath import *
+from commonmath import calculate_MSE, normalize_data
 
 def train(train_features, train_labels):
-
     features = train_features
     labels = train_labels
 
     step_size = 0.01
 
-    # convert to pandas DF and Series and add a y intercept column
+    # convert to pandas DF and Series
     features = pd.DataFrame(features)
-    features['y_int'] = 1
 
     labels = pd.Series(labels)
 
-    # store the min/max used for each column so test data can be
-    # normalized the same way later
-    feature_mins = {}
-    feature_maxes = {}
-
-    for c in features.columns:
-        try:
-            mn = min(features[c])
-            mx = max(features[c])
-            features[c] = features[c].apply(normalize_col, mx=mx, mn=mn)
-            feature_mins[c] = mn
-            feature_maxes[c] = mx
-        except:
-            pass
-
-    label_min = min(labels)
-    label_max = max(labels)
-    labels = labels.apply(normalize_col, mx=label_max, mn=label_min)
+    features, labels, feature_mins, feature_maxes, label_min, label_max = normalize_data(features, labels)
 
     # number of weights
     num_weights = features.shape[1]
@@ -45,10 +24,10 @@ def train(train_features, train_labels):
     # used in equation calculations
     weight_symbols = generate_weight_symbols(num_weights)
 
-    # training loop here and below:
-
+    # current model error
     err = calculate_MSE(feature_weights, features, labels)
 
+    # fine-tune model error
     while err > 1e-3:
         # generate loss function
         loss_func = generate_loss_function(weight_symbols, features, labels)

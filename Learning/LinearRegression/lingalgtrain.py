@@ -1,26 +1,11 @@
 import numpy as np
 import pandas as pd
-from calctrain import normalize_col
+from commonmath import normalize_col, normalize_data, calculate_MSE
 from linalgmath import calculate_optimal_weights, calculate_gradient
-from calcmathlibs import calculate_MSE
 
+# obtain optimal model weights
 def math_train(features:pd.DataFrame, labels:pd.Series):
-    feature_mins = {}
-    feature_maxes = {}
-
-    for c in features.columns:
-        try:
-            mn = min(features[c])
-            mx = max(features[c])
-            features[c] = features[c].apply(normalize_col, mx=mx, mn=mn)
-            feature_mins[c] = mn
-            feature_maxes[c] = mx
-        except:
-            pass
-
-    label_min = min(labels)
-    label_max = max(labels)
-    labels = labels.apply(normalize_col, mx=label_max, mn=label_min)
+    features, labels, feature_mins, feature_maxes, label_min, label_max = normalize_data(features, labels)
     
     features_matrix = features.to_numpy()
     labels_matrix = labels.to_numpy()
@@ -29,23 +14,9 @@ def math_train(features:pd.DataFrame, labels:pd.Series):
     
     return weights, feature_mins, feature_maxes, label_min, label_max
 
+# obtain good model weights using gradient descent
 def grad_train(features:pd.DataFrame, labels:pd.Series):
-    feature_mins = {}
-    feature_maxes = {}
-
-    for c in features.columns:
-        try:
-            mn = min(features[c])
-            mx = max(features[c])
-            features[c] = features[c].apply(normalize_col, mx=mx, mn=mn)
-            feature_mins[c] = mn
-            feature_maxes[c] = mx
-        except:
-            pass
-
-    label_min = min(labels)
-    label_max = max(labels)
-    labels = labels.apply(normalize_col, mx=label_max, mn=label_min)
+    features, labels, feature_mins, feature_maxes, label_min, label_max = normalize_data(features, labels)
     
     features_matrix = features.to_numpy()
     labels_vector = labels.to_numpy()
